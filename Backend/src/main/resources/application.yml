@@ -4,9 +4,9 @@ spring:
   profiles:
     active: dev
   datasource:
-    url: jdbc:postgresql://localhost:5432/procurex_db
+    url: jdbc:postgresql://localhost:5432/ProcureX_DB
     username: postgres
-    password: your_actual_postgresql_password
+    password: aadil@123
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
