@@ -8,7 +8,7 @@
         <version>3.1.0</version>
         <relativePath/>
     </parent>
-    <groupId>com.aegisops</groupId>
+    <groupId>com.procurex</groupId>
     <artifactId>procurex-backend</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>ProcureX Backend</name>
