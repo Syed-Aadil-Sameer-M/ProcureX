@@ -1,5 +1,7 @@
 spring:
   datasource:
-    url: jdbc:h2:file:./devdb
+    url: jdbc:postgresql://localhost:5432/ProcureX_DB
+    username: postgres
+    password: aadil@123
   jpa:
     show-sql: true
