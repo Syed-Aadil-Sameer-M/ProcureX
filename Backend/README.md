@@ -1,22 +1,30 @@
-# ProcureX Backend
+# 🚀 ProcureX Backend
 
-This is the backend service for the ProcureX procurement management system, built with Spring Boot.
+[![Java](https://img.shields.io/badge/Java-17-orange)](https://openjdk.java.net/)
+[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.1.0-brightgreen)](https://spring.io/projects/spring-boot)
+[![Maven](https://img.shields.io/badge/Maven-3.8+-red)](https://maven.apache.org/)
 
-## Getting Started
+This is the backend service for the **ProcureX** procurement management system, built with **Spring Boot**.
+
+---
+
+## 📋 Getting Started
 
 ### Prerequisites
-- Java 17
-- Maven
+- ☕ Java 17
+- 📦 Maven
 
 ### Running the Application
 1. Navigate to the backend directory
 2. Run `mvn spring-boot:run`
 
-The application will start on port 8080.
+The application will start on **port 8080**.
 
-## Project Structure
+---
 
-The backend follows a layered architecture with the following structure:
+## 🏗️ Project Structure
+
+The backend follows a **layered architecture** with the following structure:
 
 ```
 backend/
@@ -47,7 +55,7 @@ backend/
 └── README.md
 ```
 
-### Package Details
+### 📦 Package Details
 
 - **Base Package**: `com.procurex`
 - **Controllers**: Handle HTTP requests and responses
@@ -60,20 +68,24 @@ backend/
 - **Security**: JWT authentication, user details, etc.
 - **Util**: Helper classes and utilities
 
-## Configuration
+---
+
+## ⚙️ Configuration
 
 ### Application Profiles
 - **dev**: Uses H2 in-memory database for development
 - **prod**: Uses PostgreSQL for production
 
 ### Dependencies
-- Spring Boot Web: REST API
-- Spring Boot Data JPA: ORM
-- Spring Boot Security: Authentication
-- H2 Database: Development database
-- PostgreSQL Driver: Production database
+- 🌐 Spring Boot Web: REST API
+- 🗄️ Spring Boot Data JPA: ORM
+- 🔒 Spring Boot Security: Authentication
+- 💾 H2 Database: Development database
+- 🐘 PostgreSQL Driver: Production database
 
-## Building and Running
+---
+
+## 🚀 Building and Running
 
 ### Development
 ```bash
@@ -92,22 +104,34 @@ docker build -t procurex-backend .
 docker run -p 8080:8080 procurex-backend
 ```
 
-## API Endpoints
-- Authentication: `/api/auth/login`, `/api/auth/logout`
-- Requests: `/api/requests`
-- Inventory: `/api/inventory`
+---
 
-## Database
+## 🔗 API Endpoints
+- 🔐 Authentication: `/api/auth/login`, `/api/auth/logout`
+- 📋 Requests: `/api/requests`
+- 📦 Inventory: `/api/inventory`
+
+---
+
+## 🗄️ Database
 - **Development**: H2 console available at `http://localhost:8080/h2-console`
 - **Production**: PostgreSQL database
 
-## Testing
+---
+
+## 🧪 Testing
 Run tests with:
 ```bash
 mvn test
 ```
 
-## Contributing
+---
+
+## 🤝 Contributing
 1. Follow the layered architecture
 2. Add unit tests for new functionality
 3. Update this README for any structural changes
+
+---
+
+*Made with ❤️ for ProcureX*
