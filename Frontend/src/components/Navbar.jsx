@@ -10,10 +10,16 @@ function Navbar() {
 
   return (
     <nav style={styles.navbar}>
-      <span style={styles.logo}>ProcureX</span>
+      <span style={styles.logo} onClick={() => navigate("/dashboard")}>
+        ProcureX
+      </span>
       <div style={styles.links}>
-        <span style={styles.link}>Dashboard</span>
-        <span style={styles.link}>Requests</span>
+        <span style={styles.link} onClick={() => navigate("/dashboard")}>
+          Dashboard
+        </span>
+        <span style={styles.link} onClick={() => navigate("/create-request")}>
+          Requests
+        </span>
         <span style={styles.link}>Inventory</span>
         <span style={styles.link}>Logs</span>
         <button style={styles.logout} onClick={handleLogout}>
@@ -37,6 +43,7 @@ const styles = {
   logo: {
     fontSize: "20px",
     fontWeight: "600",
+    cursor: "pointer",
   },
   links: {
     display: "flex",
