@@ -1,15 +1,23 @@
-import { useState } from "react";
+import { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
+import api from "../services/api";
+import { AuthContext } from "../context/AuthContext";
 
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const { login } = useContext(AuthContext);
   const navigate = useNavigate();
 
-  const handleLogin = () => {
-    // API connection comes on Day 4
-    // For now just navigate to dashboard
-    navigate("/dashboard");
+  const handleLogin = async () => {
+    try {
+      const response = await api.post('/auth/login', { email, password });
+      login({ token: response.data.token, username: response.data.username, email });
+      navigate("/dashboard");
+    } catch (error) {
+      console.error("Login failed", error);
+      alert("Login failed. Check terminal or input.");
+    }
   };
 
   return (
