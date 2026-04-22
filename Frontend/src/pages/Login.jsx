@@ -17,6 +17,7 @@ function Login() {
     setLoading(true);
     setError("");
 
+    // MOCK LOGIN — swap this with Aadil's API call when backend is ready
     setTimeout(() => {
       if (email === "admin@test.com" && password === "admin123") {
         localStorage.setItem("token", "mock-token-admin");
