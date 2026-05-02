@@ -15,23 +15,34 @@ public class AuditLog {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 100)
     private String action;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 50)
     private String module;
+
+    @Column(columnDefinition = "TEXT")
+    private String description;
 
     @Column(nullable = false, updatable = false)
     private LocalDateTime timestamp = LocalDateTime.now();
 
+    // Getters and setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
+    
     public User getUser() { return user; }
     public void setUser(User user) { this.user = user; }
+    
     public String getAction() { return action; }
     public void setAction(String action) { this.action = action; }
+    
     public String getModule() { return module; }
     public void setModule(String module) { this.module = module; }
+
+    public String getDescription() { return description; }
+    public void setDescription(String description) { this.description = description; }
+    
     public LocalDateTime getTimestamp() { return timestamp; }
     public void setTimestamp(LocalDateTime timestamp) { this.timestamp = timestamp; }
 }

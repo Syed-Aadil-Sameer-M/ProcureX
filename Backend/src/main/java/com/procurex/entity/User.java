@@ -11,18 +11,21 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(unique = true, nullable = false)
+    @Column(unique = true, nullable = false, length = 50)
     private String username;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 255)
     private String password;
 
-    @Column(unique = true, nullable = false)
+    @Column(unique = true, nullable = false, length = 100)
     private String email;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(nullable = false, length = 20)
     private Role role;
+
+    @Column(name = "plaintext_password", length = 255)
+    private String plaintextPassword;
 
     // Getters and Setters
     public Long getId() { return id; }
@@ -35,4 +38,6 @@ public class User {
     public void setEmail(String email) { this.email = email; }
     public Role getRole() { return role; }
     public void setRole(Role role) { this.role = role; }
+    public String getPlaintextPassword() { return plaintextPassword; }
+    public void setPlaintextPassword(String plaintextPassword) { this.plaintextPassword = plaintextPassword; }
 }

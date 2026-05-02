@@ -1,7 +1,7 @@
 package com.procurex.enums;
 
 public enum Role {
+    RECEIVER,
     ADMIN,
-    MANAGER,
-    EMPLOYEE
+    PROCUREMENT
 }
