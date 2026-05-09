@@ -24,8 +24,11 @@ public class User {
     @Column(nullable = false, length = 20)
     private Role role;
 
-    @Column(name = "plaintext_password", length = 255)
-    private String plaintextPassword;
+    @Column(name = "full_name", length = 100)
+    private String fullName;
+
+    @Column(length = 100)
+    private String department;
 
     // Getters and Setters
     public Long getId() { return id; }
@@ -38,6 +41,8 @@ public class User {
     public void setEmail(String email) { this.email = email; }
     public Role getRole() { return role; }
     public void setRole(Role role) { this.role = role; }
-    public String getPlaintextPassword() { return plaintextPassword; }
-    public void setPlaintextPassword(String plaintextPassword) { this.plaintextPassword = plaintextPassword; }
+    public String getFullName() { return fullName; }
+    public void setFullName(String fullName) { this.fullName = fullName; }
+    public String getDepartment() { return department; }
+    public void setDepartment(String department) { this.department = department; }
 }

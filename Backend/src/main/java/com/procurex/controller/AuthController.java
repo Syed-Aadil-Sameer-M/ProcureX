@@ -18,10 +18,12 @@ public class AuthController {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final com.procurex.security.JwtUtil jwtUtil;
 
-    public AuthController(UserRepository userRepository) {
+    public AuthController(UserRepository userRepository, com.procurex.security.JwtUtil jwtUtil) {
         this.userRepository = userRepository;
         this.passwordEncoder = new BCryptPasswordEncoder();
+        this.jwtUtil = jwtUtil;
     }
 
     @PostMapping("/login")
@@ -29,11 +31,11 @@ public class AuthController {
         User user = userRepository.findByEmail(loginRequest.getEmail());
 
         if (user != null && passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
-            // return a fake token but REAL username and real role
+            String token = jwtUtil.generateToken(user.getUsername(), user.getRole().name());
             return ResponseEntity.ok(new LoginResponse(
-                    "dummy-jwt-token-12345", // We replace this with JWT later
+                    token,
                     user.getUsername(),
-                    user.getRole().name()     // send role to frontend
+                    user.getRole().name()
             ));
         }
 
@@ -52,7 +54,6 @@ public class AuthController {
         user.setEmail(request.getEmail());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setRole(request.getRole());
-        user.setPlaintextPassword(request.getPassword()); // just for dev tracking
         
         userRepository.save(user);
         return ResponseEntity.ok("User registered successfully");

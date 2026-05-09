@@ -8,6 +8,11 @@ spring:
     username: postgres
     password: aadil@123
     driver-class-name: org.postgresql.Driver
+  sql:
+    init:
+      mode: always
+      schema-locations: file:../database/schema.sql
+      data-locations: file:../database/seed.sql
   jpa:
     hibernate:
       ddl-auto: create-drop
