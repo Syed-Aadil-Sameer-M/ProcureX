@@ -20,6 +20,12 @@ public class Inventory {
     @Column(precision = 10, scale = 2)
     private BigDecimal price;
 
+    @Column(nullable = false, length = 20)
+    private String unit = "pcs";
+
+    @Column(name = "min_stock_level", nullable = false)
+    private Integer minStockLevel = 10;
+
     // Getters and setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
@@ -32,4 +38,10 @@ public class Inventory {
     
     public BigDecimal getPrice() { return price; }
     public void setPrice(BigDecimal price) { this.price = price; }
+    
+    public String getUnit() { return unit; }
+    public void setUnit(String unit) { this.unit = unit; }
+    
+    public Integer getMinStockLevel() { return minStockLevel; }
+    public void setMinStockLevel(Integer minStockLevel) { this.minStockLevel = minStockLevel; }
 }

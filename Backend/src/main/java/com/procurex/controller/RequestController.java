@@ -1,42 +1,43 @@
 package com.procurex.controller;
 
 import com.procurex.entity.Request;
-import com.procurex.repository.RequestRepository;
+import com.procurex.service.RequestService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.access.prepost.PreAuthorize;
+import jakarta.validation.Valid;
+import com.procurex.dto.CreateRequestDTO;
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/requests")
 public class RequestController {
 
-    private final RequestRepository requestRepository;
+    private final RequestService requestService;
 
-    public RequestController(RequestRepository requestRepository) {
-        this.requestRepository = requestRepository;
+    public RequestController(RequestService requestService) {
+        this.requestService = requestService;
     }
 
     @PostMapping("/create") // Matches API call in frontend
     @CrossOrigin
-    public ResponseEntity<Request> createRequest(@RequestBody Request request) {
-        Request savedRequest = requestRepository.save(request);
+    @PreAuthorize("hasRole('RECEIVER')")
+    public ResponseEntity<Request> createRequest(@Valid @RequestBody CreateRequestDTO request) {
+        Request savedRequest = requestService.createRequest(request);
         return ResponseEntity.ok(savedRequest);
     }
 
     @GetMapping
     public ResponseEntity<List<Request>> getAll() {
-        return ResponseEntity.ok(requestRepository.findAll());
+        return ResponseEntity.ok(requestService.getAllRequests());
     }
 
-    @PutMapping("/{id}")
+    @PatchMapping("/{id}/status")
     @CrossOrigin
-    public ResponseEntity<Request> updateRequest(@PathVariable Long id,
-                                                 @RequestBody Request requestDetails) {
-        return requestRepository.findById(id)
-                .map(existingRequest -> {
-                    existingRequest.setStatus(requestDetails.getStatus());
-                    return ResponseEntity.ok(requestRepository.save(existingRequest));
-                })
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Request> updateRequestStatus(@PathVariable Long id, @RequestBody Request requestDetails) {
+        return requestService.updateRequestStatus(id, requestDetails.getStatus())
+                .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 }

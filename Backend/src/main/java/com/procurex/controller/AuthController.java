@@ -11,58 +11,49 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import com.procurex.security.JwtUtil;
+import jakarta.validation.Valid;
+
+import com.procurex.service.AuthService;
 
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
 
-    private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
+    private final AuthService authService;
 
-    public AuthController(UserRepository userRepository) {
-        this.userRepository = userRepository;
-        this.passwordEncoder = new BCryptPasswordEncoder();
+    public AuthController(AuthService authService) {
+        this.authService = authService;
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
-        User user = userRepository.findByEmail(loginRequest.getEmail());
-
-        if (user != null && passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
-            // return a fake token but REAL username and real role
-            return ResponseEntity.ok(new LoginResponse(
-                    "dummy-jwt-token-12345", // We replace this with JWT later
-                    user.getUsername(),
-                    user.getRole().name()     // send role to frontend
-            ));
+    public ResponseEntity<?> login(@Valid @RequestBody LoginRequest loginRequest) {
+        try {
+            LoginResponse response = authService.login(loginRequest);
+            if (response != null) {
+                return ResponseEntity.ok(response);
+            }
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     }
 
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody RegisterRequest request) {
-        // Basic duplicate checks
-        if (userRepository.findByEmail(request.getEmail()) != null) {
+    public ResponseEntity<?> register(@Valid @RequestBody RegisterRequest request) {
+        boolean success = authService.register(request);
+        if (!success) {
             return ResponseEntity.badRequest().body("Email already exists");
         }
-
-        User user = new User();
-        user.setUsername(request.getUsername());
-        user.setEmail(request.getEmail());
-        user.setPassword(passwordEncoder.encode(request.getPassword()));
-        user.setRole(request.getRole());
-        user.setPlaintextPassword(request.getPassword()); // just for dev tracking
-        
-        userRepository.save(user);
         return ResponseEntity.ok("User registered successfully");
     }
 
     @PostMapping("/forgot-password")
     public ResponseEntity<?> forgotPassword(@RequestBody ForgotPasswordRequest request) {
-        // Mock implementation for now
-        User user = userRepository.findByEmail(request.getEmail());
-        if (user != null) {
+        boolean exists = authService.processForgotPassword(request);
+        if (exists) {
             return ResponseEntity.ok("Password reset code sent");
         }
         return ResponseEntity.ok("If the email exists, a reset code will be sent");
