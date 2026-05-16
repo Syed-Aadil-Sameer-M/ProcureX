@@ -20,9 +20,9 @@ public class AuthController {
     private final PasswordEncoder passwordEncoder;
     private final com.procurex.security.JwtUtil jwtUtil;
 
-    public AuthController(UserRepository userRepository, com.procurex.security.JwtUtil jwtUtil) {
+    public AuthController(UserRepository userRepository, com.procurex.security.JwtUtil jwtUtil, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
-        this.passwordEncoder = new BCryptPasswordEncoder();
+        this.passwordEncoder = passwordEncoder;
         this.jwtUtil = jwtUtil;
     }
 
@@ -67,5 +67,12 @@ public class AuthController {
             return ResponseEntity.ok("Password reset code sent");
         }
         return ResponseEntity.ok("If the email exists, a reset code will be sent");
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout() {
+        // JWT is stateless, so we just return success
+        // Client side will clear the token from localStorage
+        return ResponseEntity.ok("Logged out successfully");
     }
 }

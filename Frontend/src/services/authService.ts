@@ -37,7 +37,12 @@ export const authService = {
   },
 
   logout: async () => {
-    const response = await api.post('/auth/logout')
-    return response.data
+    try {
+      const response = await api.post('/auth/logout')
+      return response.data
+    } catch (error) {
+      console.warn("Logout request failed, but clearing local state anyway", error)
+      return { success: true }
+    }
   },
 }

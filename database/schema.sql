@@ -2,6 +2,7 @@
 -- For dev: Hibernate updates tables automatically (ddl-auto: update)
 -- For prod: run this file manually before starting the backend
 
+DROP TABLE IF EXISTS audit_logs CASCADE;
 DROP TABLE IF EXISTS stock_transactions CASCADE;
 DROP TABLE IF EXISTS notifications CASCADE;
 DROP TABLE IF EXISTS purchase_orders CASCADE;

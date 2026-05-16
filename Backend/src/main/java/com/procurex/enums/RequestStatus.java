@@ -3,5 +3,6 @@ package com.procurex.enums;
 public enum RequestStatus {
     PENDING,
     APPROVED,
-    REJECTED
+    REJECTED,
+    COMPLETED
 }

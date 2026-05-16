@@ -23,7 +23,7 @@ public class RequestController {
     }
 
     @PostMapping("/create")
-    @PreAuthorize("hasRole('RECEIVER')")
+    @PreAuthorize("hasAnyRole('RECEIVER', 'ADMIN')")
     public ResponseEntity<Request> createRequest(@Valid @RequestBody CreateRequestDTO dto) {
         return ResponseEntity.ok(requestService.createRequest(dto));
     }
@@ -33,10 +33,11 @@ public class RequestController {
         return ResponseEntity.ok(requestService.getAllRequests());
     }
 
-    @PutMapping("/{id}/status")
+    @PatchMapping("/{id}/status")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Request> updateRequestStatus(@PathVariable Long id, @RequestBody Request requestDetails) {
-        return requestService.updateRequestStatus(id, requestDetails.getStatus())
+    public ResponseEntity<Request> updateRequestStatus(@PathVariable Long id, @RequestBody java.util.Map<String, String> requestDetails) {
+        RequestStatus status = RequestStatus.valueOf(requestDetails.get("status").toUpperCase());
+        return requestService.updateRequestStatus(id, status)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }

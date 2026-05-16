@@ -33,9 +33,10 @@ export default function CreateRequestPage() {
       setSubmittedData(data)
       setSubmitted(true)
       toast({ title: "Request Submitted", description: `${data.material} (Qty: ${data.quantity}) has been recorded.` })
-    } catch (err) {
+    } catch (err: any) {
       console.error("Submit failed", err)
-      toast({ title: "Submission Failed", description: "Could not submit request. Is the backend running?", variant: "destructive" })
+      const errorMsg = err.response?.data || "Could not submit request. Please try again."
+      toast({ title: "Submission Failed", description: typeof errorMsg === 'string' ? errorMsg : "Check your input data.", variant: "destructive" })
     } finally { setLoading(false) }
   }
 
