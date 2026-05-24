@@ -21,10 +21,10 @@ export interface RegisterData {
 }
 
 export const authService = {
-  login: async (credentials: LoginCredentials): Promise<LoginResponseData> => {
-    const response = await api.post('/auth/login', credentials)
-    return response.data
-  },
+ login: async (credentials: LoginCredentials): Promise<LoginResponseData> => {
+  const response = await api.post('/auth/login', credentials)
+  return response.data
+},
 
   register: async (data: RegisterData) => {
     const response = await api.post('/auth/register', data)
