@@ -1,0 +1,306 @@
+{
+  "info": {
+    "name": "ProcureX API Collection",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080"
+    },
+    {
+      "key": "authToken",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/auth/login",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"admin\",\n  \"password\": \"admin123\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Login as Receiver",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/auth/login",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"receiver1\",\n  \"password\": \"admin123\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Login as Procurement",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/auth/login",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"procurement1\",\n  \"password\": \"admin123\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Register",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/auth/register",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"newuser\",\n  \"password\": \"password123\",\n  \"fullName\": \"New User\",\n  \"role\": \"RECEIVER\",\n  \"department\": \"Engineering\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Google Auth",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/auth/google",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"credential\": \"your_google_token_here\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Requests",
+      "item": [
+        {
+          "name": "Get All Requests",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/requests",
+            "header": [{ "key": "Authorization", "value": "Bearer {{authToken}}" }]
+          }
+        },
+        {
+          "name": "Get My Requests",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/requests/my",
+            "header": [{ "key": "Authorization", "value": "Bearer {{authToken}}" }]
+          }
+        },
+        {
+          "name": "Create Request",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/requests",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{authToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Test Request\",\n  \"material\": \"Welding Rods\",\n  \"quantity\": 10,\n  \"description\": \"Urgent requirement\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Update Request Status",
+          "request": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/api/requests/1/status",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{authToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"APPROVED\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Inventory",
+      "item": [
+        {
+          "name": "Get All Inventory",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/inventory",
+            "header": [{ "key": "Authorization", "value": "Bearer {{authToken}}" }]
+          }
+        },
+        {
+          "name": "Add Inventory Item",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/inventory",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{authToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"New Item\",\n  \"quantity\": 100,\n  \"minStock\": 20,\n  \"unit\": \"pieces\",\n  \"category\": \"Tools\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Update Inventory Item",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/api/inventory/1",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{authToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"quantity\": 150,\n  \"minStock\": 25\n}"
+            }
+          }
+        },
+        {
+          "name": "Delete Inventory Item",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/api/inventory/1",
+            "header": [{ "key": "Authorization", "value": "Bearer {{authToken}}" }]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Purchase Orders",
+      "item": [
+        {
+          "name": "Get All Purchase Orders",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/purchase-orders",
+            "header": [{ "key": "Authorization", "value": "Bearer {{authToken}}" }]
+          }
+        },
+        {
+          "name": "Create Purchase Order",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/purchase-orders",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{authToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"inventoryId\": 1,\n  \"vendorId\": 1,\n  \"quantity\": 50\n}"
+            }
+          }
+        },
+        {
+          "name": "Update Purchase Order Status",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/api/purchase-orders/1/status",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{authToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"ORDERED\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin",
+      "item": [
+        {
+          "name": "Get All Users",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/users",
+            "header": [{ "key": "Authorization", "value": "Bearer {{authToken}}" }]
+          }
+        },
+        {
+          "name": "Get Audit Logs",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/audit-logs",
+            "header": [{ "key": "Authorization", "value": "Bearer {{authToken}}" }]
+          }
+        },
+        {
+          "name": "Get Stats",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/stats",
+            "header": [{ "key": "Authorization", "value": "Bearer {{authToken}}" }]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Vendors",
+      "item": [
+        {
+          "name": "Get All Vendors",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/vendors",
+            "header": [{ "key": "Authorization", "value": "Bearer {{authToken}}" }]
+          }
+        },
+        {
+          "name": "Create Vendor",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/vendors",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{authToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"New Vendor Pvt Ltd\",\n  \"contactPerson\": \"John Doe\",\n  \"email\": \"john@newvendor.com\",\n  \"phone\": \"+911234567890\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Notifications",
+      "item": [
+        {
+          "name": "Get My Notifications",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/notifications",
+            "header": [{ "key": "Authorization", "value": "Bearer {{authToken}}" }]
+          }
+        },
+        {
+          "name": "Mark Notification as Read",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/api/notifications/1/read",
+            "header": [{ "key": "Authorization", "value": "Bearer {{authToken}}" }]
+          }
+        }
+      ]
+    }
+  ]
+}
