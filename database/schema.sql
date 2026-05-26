@@ -35,7 +35,8 @@ CREATE TABLE inventory (
     quantity          INT           NOT NULL DEFAULT 0,
     price             DECIMAL(10,2),
     unit              VARCHAR(20)   NOT NULL DEFAULT 'pcs',
-    min_stock_level   INT           NOT NULL DEFAULT 10
+    min_stock_level   INT           NOT NULL DEFAULT 10,
+    stock_level       VARCHAR(20)   NOT NULL DEFAULT 'OK'
 );
 
 CREATE TABLE requests (
@@ -55,6 +56,7 @@ CREATE TABLE purchase_orders (
     vendor_id    BIGINT        NOT NULL REFERENCES vendors(id),
     quantity     INT           NOT NULL,
     status       VARCHAR(20)   NOT NULL DEFAULT 'CREATED',
+    notes        TEXT,
     request_id   BIGINT        REFERENCES requests(id),
     created_at   TIMESTAMP     NOT NULL DEFAULT NOW()
 );

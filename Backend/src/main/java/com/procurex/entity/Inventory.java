@@ -26,6 +26,9 @@ public class Inventory {
     @Column(name = "min_stock_level", nullable = false)
     private Integer minStockLevel = 10;
 
+    @Column(name = "stock_level", nullable = false, length = 20)
+    private String stockLevel = "OK";
+
     // Getters and setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
@@ -39,4 +42,16 @@ public class Inventory {
     public void setUnit(String unit) { this.unit = unit; }
     public Integer getMinStockLevel() { return minStockLevel; }
     public void setMinStockLevel(Integer minStockLevel) { this.minStockLevel = minStockLevel; }
+    public String getStockLevel() { return stockLevel; }
+    public void setStockLevel(String stockLevel) { this.stockLevel = stockLevel; }
+
+    public void recalculateStockLevel() {
+        if (quantity == null || quantity <= 0) {
+            this.stockLevel = "CRITICAL";
+        } else if (quantity < minStockLevel) {
+            this.stockLevel = "LOW";
+        } else {
+            this.stockLevel = "OK";
+        }
+    }
 }

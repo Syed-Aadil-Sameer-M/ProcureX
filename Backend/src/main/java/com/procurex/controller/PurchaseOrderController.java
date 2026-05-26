@@ -25,6 +25,14 @@ public class PurchaseOrderController {
         return ResponseEntity.ok(purchaseOrderService.getAllPurchaseOrders());
     }
 
+    @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'PROCUREMENT')")
+    public ResponseEntity<PurchaseOrder> getById(@PathVariable Long id) {
+        return purchaseOrderService.getPurchaseOrderById(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
     @PutMapping("/{id}/status")
     @PreAuthorize("hasAnyRole('ADMIN', 'PROCUREMENT')")
     public ResponseEntity<PurchaseOrder> updateStatus(@PathVariable Long id, @RequestBody java.util.Map<String, String> details) {

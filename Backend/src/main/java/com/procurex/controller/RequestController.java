@@ -33,10 +33,26 @@ public class RequestController {
         return ResponseEntity.ok(requestService.getAllRequests());
     }
 
+    @GetMapping("/my")
+    @PreAuthorize("hasRole('RECEIVER')")
+    public ResponseEntity<List<Request>> getMyRequests() {
+        String username = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication().getName();
+        return ResponseEntity.ok(requestService.getRequestsByUser(username));
+    }
+
     @PatchMapping("/{id}/status")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Request> updateRequestStatus(@PathVariable Long id, @RequestBody java.util.Map<String, String> requestDetails) {
-        RequestStatus status = RequestStatus.valueOf(requestDetails.get("status").toUpperCase());
+        String statusStr = requestDetails.get("status");
+        if (statusStr == null) {
+            return ResponseEntity.badRequest().build();
+        }
+        RequestStatus status;
+        try {
+            status = RequestStatus.valueOf(statusStr.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
+        }
         return requestService.updateRequestStatus(id, status)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());

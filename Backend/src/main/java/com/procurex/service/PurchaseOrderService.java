@@ -25,6 +25,11 @@ public class PurchaseOrderService {
         return purchaseOrderRepository.findAll();
     }
 
+    public java.util.Optional<PurchaseOrder> getPurchaseOrderById(Long id) {
+        return purchaseOrderRepository.findById(id);
+    }
+
+    @org.springframework.transaction.annotation.Transactional
     public java.util.Optional<PurchaseOrder> updateStatus(Long id, com.procurex.enums.PurchaseOrderStatus status) {
         return purchaseOrderRepository.findById(id).map(order -> {
             boolean isTerminal = (status == com.procurex.enums.PurchaseOrderStatus.RECEIVED || status == com.procurex.enums.PurchaseOrderStatus.COMPLETED);
@@ -33,6 +38,7 @@ public class PurchaseOrderService {
             if (isTerminal && !wasTerminal) {
                 com.procurex.entity.Inventory inv = order.getInventory();
                 inv.setQuantity(inv.getQuantity() + order.getQuantity());
+                inv.recalculateStockLevel();
                 inventoryRepository.save(inv);
                 stockTransactionService.logTransaction(inv, order.getQuantity(), "IN", "PO-" + order.getId());
             }

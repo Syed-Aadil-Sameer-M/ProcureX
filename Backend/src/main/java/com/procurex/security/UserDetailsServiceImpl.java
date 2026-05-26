@@ -25,7 +25,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         // Let's try to find by email first, then by username
         User user = userRepository.findByEmail(username);
         if (user == null) {
-            user = userRepository.findByUsername(username);
+            user = userRepository.findByUsername(username).orElse(null);
         }
         
         if (user == null) {

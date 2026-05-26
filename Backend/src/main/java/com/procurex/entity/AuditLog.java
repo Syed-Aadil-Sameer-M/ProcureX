@@ -13,6 +13,7 @@ public class AuditLog {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
+    @com.fasterxml.jackson.annotation.JsonIgnore
     private User user;
 
     @Column(nullable = false, length = 100)
@@ -31,8 +32,14 @@ public class AuditLog {
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     
+    @com.fasterxml.jackson.annotation.JsonIgnore
     public User getUser() { return user; }
     public void setUser(User user) { this.user = user; }
+
+    @com.fasterxml.jackson.annotation.JsonProperty("user")
+    public String getUserEmail() {
+        return user != null ? user.getEmail() : null;
+    }
     
     public String getAction() { return action; }
     public void setAction(String action) { this.action = action; }

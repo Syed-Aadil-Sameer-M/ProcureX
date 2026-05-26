@@ -33,8 +33,15 @@ public class PurchaseOrder {
     @JoinColumn(name = "request_id")
     private Request request;
 
+    @Column(name = "notes", columnDefinition = "TEXT")
+    private String notes;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
+
+    // Notes Getter and Setter
+    public String getNotes() { return notes; }
+    public void setNotes(String notes) { this.notes = notes; }
 
     // Getters and setters
     public Long getId() { return id; }
