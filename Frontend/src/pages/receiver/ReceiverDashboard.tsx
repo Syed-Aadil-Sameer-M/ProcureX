@@ -1,37 +1,197 @@
-import { ClipboardList, CheckCircle, Clock, XCircle } from "lucide-react"
+import {
+  BarChart, Bar, XAxis, YAxis, Tooltip,
+  ResponsiveContainer, Cell
+} from "recharts"
+import {
+  ClipboardList, Clock, CheckCircle,
+  XCircle, TrendingUp, Plus
+} from "lucide-react"
 import { mockRequests } from "@/lib/mockData"
 import { StatusBadge } from "@/components/ui/StatusBadge"
+import { useNavigate } from "react-router-dom"
 
 export default function ReceiverDashboard() {
-  const pending = mockRequests.filter(r => r.status === "PENDING").length
-  const approved = mockRequests.filter(r => r.status === "APPROVED").length
-  const rejected = mockRequests.filter(r => r.status === "REJECTED").length
-  const recent = mockRequests.slice(0, 5)
+  const navigate = useNavigate()
+
+  const myRequests = mockRequests.slice(0, 6)
+  const pending = myRequests.filter(r => r.status === "PENDING").length
+  const approved = myRequests.filter(r => r.status === "APPROVED").length
+  const rejected = myRequests.filter(r => r.status === "REJECTED").length
+  const completed = myRequests.filter(r => r.status === "COMPLETED").length
 
   const stats = [
-    { label: "Total Requests", value: mockRequests.length, icon: ClipboardList, color: "text-teal-500", bg: "bg-teal-500/10" },
-    { label: "Pending", value: pending, icon: Clock, color: "text-amber-500", bg: "bg-amber-500/10" },
-    { label: "Approved", value: approved, icon: CheckCircle, color: "text-green-500", bg: "bg-green-500/10" },
-    { label: "Rejected", value: rejected, icon: XCircle, color: "text-red-500", bg: "bg-red-500/10" },
+    {
+      label: "My Requests",
+      value: myRequests.length,
+      icon: ClipboardList,
+      color: "text-teal-500",
+      bg: "bg-teal-500/10",
+      trend: "Total submitted"
+    },
+    {
+      label: "Pending",
+      value: pending,
+      icon: Clock,
+      color: "text-amber-500",
+      bg: "bg-amber-500/10",
+      trend: "Awaiting approval"
+    },
+    {
+      label: "Approved",
+      value: approved,
+      icon: CheckCircle,
+      color: "text-green-500",
+      bg: "bg-green-500/10",
+      trend: "Ready to process"
+    },
+    {
+      label: "Rejected",
+      value: rejected,
+      icon: XCircle,
+      color: "text-red-500",
+      bg: "bg-red-500/10",
+      trend: "Need to resubmit"
+    },
+  ]
+
+  const statusData = [
+    { name: "Pending", value: pending, color: "#E3B341" },
+    { name: "Approved", value: approved, color: "#1D9E75" },
+    { name: "Rejected", value: rejected, color: "#F85149" },
+    { name: "Completed", value: completed, color: "#378ADD" },
   ]
 
   return (
     <div className="space-y-6">
-      <div><h1 className="text-2xl font-bold text-slate-900 dark:text-foreground">Receiver Dashboard</h1><p className="text-slate-500 dark:text-muted-foreground">Overview of your material requests</p></div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {stats.map(s => (<div key={s.label} className="bg-white dark:bg-card border border-[#E2E8F0] dark:border-border rounded-xl p-5 flex items-center gap-4">
-          <div className={`w-12 h-12 ${s.bg} rounded-lg flex items-center justify-center`}><s.icon className={`w-6 h-6 ${s.color}`} /></div>
-          <div><p className="text-sm text-slate-500 dark:text-muted-foreground">{s.label}</p><p className="text-2xl font-bold text-slate-900 dark:text-foreground">{s.value}</p></div>
-        </div>))}
-      </div>
-      <div className="bg-white dark:bg-card border border-[#E2E8F0] dark:border-border rounded-xl">
-        <div className="p-5 border-b border-[#E2E8F0] dark:border-border"><h2 className="text-lg font-semibold text-slate-900 dark:text-foreground">Recent Requests</h2></div>
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead className="text-xs text-slate-500 uppercase bg-[#F8FAFC] dark:bg-muted"><tr><th className="px-6 py-3 text-left">ID</th><th className="px-6 py-3 text-left">Material</th><th className="px-6 py-3 text-left">Qty</th><th className="px-6 py-3 text-left">Status</th><th className="px-6 py-3 text-left">Date</th></tr></thead>
-            <tbody>{recent.map(r => (<tr key={r.id} className="border-b border-[#E2E8F0] dark:border-border hover:bg-teal-50 dark:hover:bg-muted transition-colors"><td className="px-6 py-4 font-medium text-slate-900 dark:text-foreground">{r.id}</td><td className="px-6 py-4 text-slate-600 dark:text-foreground">{r.material}</td><td className="px-6 py-4 text-slate-600 dark:text-foreground">{r.quantity}</td><td className="px-6 py-4"><StatusBadge status={r.status} /></td><td className="px-6 py-4 text-slate-500 dark:text-muted-foreground">{r.date}</td></tr>))}</tbody>
-          </table>
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-foreground">
+            My Dashboard
+          </h1>
+          <p className="text-slate-500 dark:text-muted-foreground">
+            Track your material requests
+          </p>
         </div>
+        <button
+          onClick={() => navigate("/app/receiver/request")}
+          className="flex items-center gap-2 bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+        >
+          <Plus className="w-4 h-4" />
+          New Request
+        </button>
+      </div>
+
+      {/* Stat cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {stats.map(s => (
+          <div
+            key={s.label}
+            className="bg-white dark:bg-card border border-[#E2E8F0] dark:border-border rounded-xl p-5"
+          >
+            <div className="flex items-center gap-4">
+              <div className={`w-12 h-12 ${s.bg} rounded-lg flex items-center justify-center`}>
+                <s.icon className={`w-6 h-6 ${s.color}`} />
+              </div>
+              <div>
+                <p className="text-sm text-slate-500 dark:text-muted-foreground">{s.label}</p>
+                <p className="text-2xl font-bold text-slate-900 dark:text-foreground">{s.value}</p>
+              </div>
+            </div>
+            <p className="text-xs text-slate-400 dark:text-muted-foreground mt-3">{s.trend}</p>
+          </div>
+        ))}
+      </div>
+
+      {/* Charts row */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Status bar chart */}
+        <div className="bg-white dark:bg-card border border-[#E2E8F0] dark:border-border rounded-xl p-5">
+          <div className="flex items-center gap-2 mb-4">
+            <TrendingUp className="w-4 h-4 text-teal-500" />
+            <h2 className="text-base font-semibold text-slate-900 dark:text-foreground">
+              My request status
+            </h2>
+          </div>
+          <ResponsiveContainer width="100%" height={200}>
+            <BarChart data={statusData}>
+              <XAxis
+                dataKey="name"
+                tick={{ fontSize: 12, fill: "#8B949E" }}
+                axisLine={false}
+                tickLine={false}
+              />
+              <YAxis
+                tick={{ fontSize: 12, fill: "#8B949E" }}
+                axisLine={false}
+                tickLine={false}
+              />
+              <Tooltip
+                contentStyle={{
+                  background: "#161B22",
+                  border: "0.5px solid #30363D",
+                  borderRadius: "8px",
+                  fontSize: "12px",
+                  color: "#E6EDF3"
+                }}
+              />
+              <Bar dataKey="value" radius={[4, 4, 0, 0]}>
+                {statusData.map((entry, index) => (
+                  <Cell key={index} fill={entry.color} />
+                ))}
+              </Bar>
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+
+        {/* Recent requests */}
+        <div className="bg-white dark:bg-card border border-[#E2E8F0] dark:border-border rounded-xl p-5">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-base font-semibold text-slate-900 dark:text-foreground">
+              Recent requests
+            </h2>
+            <button
+              onClick={() => navigate("/app/receiver/requests")}
+              className="text-xs text-teal-500 hover:text-teal-400"
+            >
+              View all
+            </button>
+          </div>
+          <div className="space-y-3">
+            {myRequests.slice(0, 4).map(r => (
+              <div
+                key={r.id}
+                className="flex items-center justify-between p-3 rounded-lg bg-[#F8FAFC] dark:bg-muted"
+              >
+                <div>
+                  <p className="font-medium text-sm text-slate-900 dark:text-foreground">
+                    {r.material}
+                  </p>
+                  <p className="text-xs text-slate-500">
+                    Qty: {r.quantity} · {r.location}
+                  </p>
+                </div>
+                <StatusBadge status={r.status} />
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Quick action */}
+      <div
+        onClick={() => navigate("/app/receiver/create")}
+        className="bg-teal-500/10 border border-teal-500/20 rounded-xl p-5 flex items-center justify-between cursor-pointer hover:bg-teal-500/20 transition-colors"
+      >
+        <div>
+          <h3 className="font-semibold text-teal-600 dark:text-teal-400">
+            Need materials?
+          </h3>
+          <p className="text-sm text-slate-500 dark:text-muted-foreground mt-1">
+            Create a new material request and get it approved fast
+          </p>
+        </div>
+        <Plus className="w-8 h-8 text-teal-500 flex-shrink-0" />
       </div>
     </div>
   )

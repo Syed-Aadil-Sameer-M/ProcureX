@@ -21,9 +21,23 @@ export interface RegisterData {
 }
 
 export const authService = {
- login: async (credentials: LoginCredentials): Promise<LoginResponseData> => {
-  const response = await api.post('/auth/login', credentials)
-  return response.data
+login: async (credentials: LoginCredentials): Promise<LoginResponseData> => {
+  const mockUsers: Record<string, LoginResponseData> = {
+    'admin@test.com': { token: 'mock-token-admin', username: 'Admin User', role: 'ADMIN' },
+    'receiver@test.com': { token: 'mock-token-receiver', username: 'Receiver User', role: 'RECEIVER' },
+    'procurement@test.com': { token: 'mock-token-procurement', username: 'Procurement User', role: 'PROCUREMENT' },
+  }
+  const passwords: Record<string, string> = {
+    'admin@test.com': 'admin123',
+    'receiver@test.com': 'receiver123',
+    'procurement@test.com': 'procurement123',
+  }
+  await new Promise(resolve => setTimeout(resolve, 800))
+  const user = mockUsers[credentials.email]
+  if (user && passwords[credentials.email] === credentials.password) {
+    return user
+  }
+  throw new Error('Invalid credentials')
 },
 
   register: async (data: RegisterData) => {
