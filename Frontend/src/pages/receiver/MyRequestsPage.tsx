@@ -19,7 +19,7 @@ export default function MyRequestsPage() {
   const [error, setError] = useState("")
 
   useEffect(() => {
-    requestService.getAll()
+    requestService.getMy()
       .then(setData)
       .catch(() => setError("Failed to load requests. Please try again."))
       .finally(() => setLoading(false))

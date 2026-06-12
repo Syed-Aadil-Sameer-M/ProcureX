@@ -13,11 +13,8 @@ export interface InventoryItem {
 export const inventoryService = {
   getAll: async (): Promise<InventoryItem[]> => {
     const response = await api.get('/inventory')
-    return response.data.map((item: any) => ({
-      ...item,
-      // Calculate stock level indicator for frontend
-      stockLevel: item.quantity <= 0 ? 'CRITICAL' : item.quantity < item.minStockLevel ? 'LOW' : 'OK'
-    }))
+    // Bug 13: Use server-provided stockLevel, don't recalculate client-side
+    return response.data
   },
 
   update: async (id: number, data: Partial<InventoryItem>) => {

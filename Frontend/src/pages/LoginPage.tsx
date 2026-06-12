@@ -55,7 +55,7 @@ export default function LoginPage() {
       const normalizedRole = response.role.toLowerCase() as Role
 
       login(response.token, {
-        id: "0",
+        id: String(response.userId),
         name: response.username,
         email: data.email,
         role: normalizedRole,

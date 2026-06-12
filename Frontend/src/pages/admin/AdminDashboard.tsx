@@ -1,15 +1,18 @@
+import { useEffect, useState } from "react"
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell, Legend
 } from "recharts"
 import {
   ClipboardList, Package, ShoppingCart, Clock,
-  CheckCircle, TrendingUp
+  CheckCircle, TrendingUp, Loader2
 } from "lucide-react"
-import { mockRequests, mockInventory, mockPurchaseOrders } from "@/lib/mockData"
 import { StatusBadge } from "@/components/ui/StatusBadge"
+import { requestService } from "@/services/requestService"
+import { inventoryService } from "@/services/inventoryService"
+import { poService } from "@/services/poService"
 
-const COLORS = {
+const COLORS: Record<string, string> = {
   PENDING: "#E3B341",
   APPROVED: "#1D9E75",
   REJECTED: "#F85149",
@@ -17,19 +20,40 @@ const COLORS = {
 }
 
 export default function AdminDashboard() {
-  const pending = mockRequests.filter(r => r.status === "PENDING").length
-  const approved = mockRequests.filter(r => r.status === "APPROVED").length
-  const rejected = mockRequests.filter(r => r.status === "REJECTED").length
-  const completed = mockRequests.filter(r => r.status === "COMPLETED").length
+  const [requests, setRequests] = useState<any[]>([])
+  const [inventory, setInventory] = useState<any[]>([])
+  const [purchaseOrders, setPurchaseOrders] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState("")
+
+  useEffect(() => {
+    Promise.all([
+      requestService.getAll(),
+      inventoryService.getAll(),
+      poService.getAll(),
+    ])
+      .then(([reqData, invData, poData]) => {
+        setRequests(Array.isArray(reqData) ? reqData : [])
+        setInventory(Array.isArray(invData) ? invData : [])
+        setPurchaseOrders(Array.isArray(poData) ? poData : [])
+      })
+      .catch(() => setError("Failed to load dashboard data."))
+      .finally(() => setLoading(false))
+  }, [])
+
+  const pending = requests.filter(r => r.status === "PENDING").length
+  const approved = requests.filter(r => r.status === "APPROVED").length
+  const rejected = requests.filter(r => r.status === "REJECTED").length
+  const completed = requests.filter(r => r.status === "COMPLETED").length
 
   const stats = [
     {
       label: "Total Requests",
-      value: mockRequests.length,
+      value: requests.length,
       icon: ClipboardList,
       color: "text-teal-500",
       bg: "bg-teal-500/10",
-      trend: "+12% this week"
+      trend: `${pending} pending`
     },
     {
       label: "Pending Approval",
@@ -41,34 +65,29 @@ export default function AdminDashboard() {
     },
     {
       label: "Inventory Items",
-      value: mockInventory.length,
+      value: inventory.length,
       icon: Package,
       color: "text-blue-500",
       bg: "bg-blue-500/10",
-      trend: "2 low stock"
+      trend: `${inventory.filter(i => i.stockLevel && i.stockLevel !== "OK").length} need attention`
     },
     {
       label: "Purchase Orders",
-      value: mockPurchaseOrders.length,
+      value: purchaseOrders.length,
       icon: ShoppingCart,
       color: "text-purple-500",
       bg: "bg-purple-500/10",
-      trend: "3 in progress"
+      trend: `${purchaseOrders.filter(p => p.status === "SENT").length} in transit`
     },
   ]
 
-  // Data for bar chart — requests per day (mock)
   const barData = [
-    { day: "Mon", requests: 3 },
-    { day: "Tue", requests: 5 },
-    { day: "Wed", requests: 2 },
-    { day: "Thu", requests: 8 },
-    { day: "Fri", requests: 4 },
-    { day: "Sat", requests: 6 },
-    { day: "Sun", requests: 7 },
+    { day: "Pending", requests: pending },
+    { day: "Approved", requests: approved },
+    { day: "Rejected", requests: rejected },
+    { day: "Completed", requests: completed },
   ]
 
-  // Data for pie chart — status breakdown
   const pieData = [
     { name: "Pending", value: pending },
     { name: "Approved", value: approved },
@@ -76,12 +95,28 @@ export default function AdminDashboard() {
     { name: "Completed", value: completed },
   ]
 
-  // Inventory stock levels for bar chart
-  const inventoryData = mockInventory.map(i => ({
-    name: i.material.length > 15 ? i.material.substring(0, 15) + "..." : i.material,
+  const inventoryData = inventory.map(i => ({
+    name: (i.material && i.material.length > 15) ? i.material.substring(0, 15) + "..." : (i.material || "Unknown"),
     quantity: i.quantity,
-    level: i.stockLevel,
+    level: i.stockLevel || (i.quantity <= 0 ? "CRITICAL" : i.quantity < (i.minStockLevel || 10) ? "LOW" : "OK"),
   }))
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center py-24">
+        <Loader2 className="w-10 h-10 animate-spin text-teal-600" />
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="text-center py-24">
+        <p className="text-red-500 mb-4">{error}</p>
+        <button onClick={() => window.location.reload()} className="text-teal-600 hover:underline text-sm">Retry</button>
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-6">
@@ -97,7 +132,7 @@ export default function AdminDashboard() {
         </div>
         <div className="flex items-center gap-2 text-sm text-teal-600 bg-teal-500/10 px-3 py-1.5 rounded-lg">
           <TrendingUp className="w-4 h-4" />
-          Live overview
+          Live data
         </div>
       </div>
 
@@ -124,10 +159,10 @@ export default function AdminDashboard() {
 
       {/* Charts row */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Bar chart — requests this week */}
+        {/* Bar chart — status counts */}
         <div className="bg-white dark:bg-card border border-[#E2E8F0] dark:border-border rounded-xl p-5">
           <h2 className="text-base font-semibold mb-4 text-slate-900 dark:text-foreground">
-            Requests this week
+            Request status overview
           </h2>
           <ResponsiveContainer width="100%" height={200}>
             <BarChart data={barData}>
@@ -175,7 +210,7 @@ export default function AdminDashboard() {
                 {pieData.map((entry) => (
                   <Cell
                     key={entry.name}
-                    fill={COLORS[entry.name.toUpperCase() as keyof typeof COLORS]}
+                    fill={COLORS[entry.name.toUpperCase()] || "#8B949E"}
                   />
                 ))}
               </Pie>
@@ -268,7 +303,7 @@ export default function AdminDashboard() {
             <h2 className="text-base font-semibold">Pending Requests</h2>
           </div>
           <div className="p-4 space-y-3">
-            {mockRequests.filter(r => r.status === "PENDING").map(r => (
+            {requests.filter(r => r.status === "PENDING").map(r => (
               <div
                 key={r.id}
                 className="flex items-center justify-between p-3 rounded-lg bg-[#F8FAFC] dark:bg-muted"
@@ -276,12 +311,15 @@ export default function AdminDashboard() {
                 <div>
                   <p className="font-medium text-sm">{r.material}</p>
                   <p className="text-xs text-slate-500">
-                    by {r.requestedBy} · Qty: {r.quantity}
+                    by {r.requestedBy || "Unknown"} · Qty: {r.quantity}
                   </p>
                 </div>
                 <StatusBadge status={r.status} />
               </div>
             ))}
+            {requests.filter(r => r.status === "PENDING").length === 0 && (
+              <p className="text-center text-sm text-slate-500 py-4">No pending requests.</p>
+            )}
           </div>
         </div>
 
@@ -291,18 +329,23 @@ export default function AdminDashboard() {
             <h2 className="text-base font-semibold">Recent Activity</h2>
           </div>
           <div className="p-4 space-y-3">
-            {mockRequests.filter(r => r.status !== "PENDING").slice(0, 4).map(r => (
+            {requests.filter(r => r.status !== "PENDING").slice(0, 4).map(r => (
               <div
                 key={r.id}
                 className="flex items-center justify-between p-3 rounded-lg bg-[#F8FAFC] dark:bg-muted"
               >
                 <div>
                   <p className="font-medium text-sm">{r.material}</p>
-                  <p className="text-xs text-slate-500">{r.date}</p>
+                  <p className="text-xs text-slate-500">
+                    {r.createdAt ? new Date(r.createdAt).toLocaleDateString() : r.date || ""}
+                  </p>
                 </div>
                 <StatusBadge status={r.status} />
               </div>
             ))}
+            {requests.filter(r => r.status !== "PENDING").length === 0 && (
+              <p className="text-center text-sm text-slate-500 py-4">No recent activity.</p>
+            )}
           </div>
         </div>
       </div>

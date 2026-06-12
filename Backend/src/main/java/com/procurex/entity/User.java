@@ -1,7 +1,15 @@
 package com.procurex.entity;
 
 import com.procurex.enums.Role;
-import jakarta.persistence.*;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "users")
@@ -30,6 +38,9 @@ public class User {
     @Column(length = 100)
     private String department;
 
+    @Column(name = "phone_number", length = 20)
+    private String phoneNumber;
+
     // Getters and Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
@@ -45,4 +56,6 @@ public class User {
     public void setFullName(String fullName) { this.fullName = fullName; }
     public String getDepartment() { return department; }
     public void setDepartment(String department) { this.department = department; }
+    public String getPhoneNumber() { return phoneNumber; }
+    public void setPhoneNumber(String phoneNumber) { this.phoneNumber = phoneNumber; }
 }

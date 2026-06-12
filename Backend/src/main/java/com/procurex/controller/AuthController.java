@@ -1,16 +1,19 @@
 package com.procurex.controller;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.procurex.dto.ForgotPasswordRequest;
 import com.procurex.dto.LoginRequest;
 import com.procurex.dto.LoginResponse;
 import com.procurex.dto.RegisterRequest;
-import com.procurex.dto.ForgotPasswordRequest;
 import com.procurex.entity.User;
 import com.procurex.repository.UserRepository;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -28,14 +31,15 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
-        User user = userRepository.findByEmail(loginRequest.getEmail());
+        User user = userRepository.findByEmail(loginRequest.getEmail()).orElse(null);
 
         if (user != null && passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
             String token = jwtUtil.generateToken(user.getUsername(), user.getRole().name());
             return ResponseEntity.ok(new LoginResponse(
                     token,
-                    user.getUsername(),
-                    user.getRole().name()
+                    user.getFullName() != null && !user.getFullName().isBlank() ? user.getFullName() : user.getUsername(),
+                    user.getRole().name(),
+                    user.getId()
             ));
         }
 
@@ -44,9 +48,12 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody RegisterRequest request) {
-        // Basic duplicate checks
-        if (userRepository.findByEmail(request.getEmail()) != null) {
+        // Bug 11: Duplicate username and email checks
+        if (userRepository.findByEmail(request.getEmail()).orElse(null) != null) {
             return ResponseEntity.badRequest().body("Email already exists");
+        }
+        if (userRepository.findByUsername(request.getUsername()).orElse(null) != null) {
+            return ResponseEntity.badRequest().body("Username already exists");
         }
 
         User user = new User();
@@ -54,6 +61,9 @@ public class AuthController {
         user.setEmail(request.getEmail());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setRole(request.getRole());
+        user.setFullName(request.getFullName());
+        user.setDepartment(request.getDepartment());
+        user.setPhoneNumber(request.getPhoneNumber());
         
         userRepository.save(user);
         return ResponseEntity.ok("User registered successfully");
@@ -62,7 +72,7 @@ public class AuthController {
     @PostMapping("/forgot-password")
     public ResponseEntity<?> forgotPassword(@RequestBody ForgotPasswordRequest request) {
         // Mock implementation for now
-        User user = userRepository.findByEmail(request.getEmail());
+        User user = userRepository.findByEmail(request.getEmail()).orElse(null);
         if (user != null) {
             return ResponseEntity.ok("Password reset code sent");
         }

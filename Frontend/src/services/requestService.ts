@@ -13,6 +13,11 @@ export const requestService = {
     return response.data
   },
 
+  getMy: async () => {
+    const response = await api.get('/requests/my')
+    return response.data
+  },
+
   create: async (data: CreateRequestData) => {
     const response = await api.post('/requests/create', data)
     return response.data

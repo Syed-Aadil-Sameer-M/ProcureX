@@ -12,13 +12,14 @@ DROP TABLE IF EXISTS vendors CASCADE;
 DROP TABLE IF EXISTS users CASCADE;
 
 CREATE TABLE users (
-    id          BIGSERIAL PRIMARY KEY,
-    username    VARCHAR(50)   UNIQUE NOT NULL,
-    password    VARCHAR(255)  NOT NULL,
-    email       VARCHAR(100)  UNIQUE NOT NULL,
-    role        VARCHAR(20)   NOT NULL,
-    full_name   VARCHAR(100),
-    department  VARCHAR(100)
+    id           BIGSERIAL PRIMARY KEY,
+    username     VARCHAR(50)   UNIQUE NOT NULL,
+    password     VARCHAR(255)  NOT NULL,
+    email        VARCHAR(100)  UNIQUE NOT NULL,
+    role         VARCHAR(20)   NOT NULL,
+    full_name    VARCHAR(100),
+    department   VARCHAR(100),
+    phone_number VARCHAR(20)
 );
 
 CREATE TABLE vendors (

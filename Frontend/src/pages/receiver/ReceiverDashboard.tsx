@@ -1,19 +1,30 @@
+import { useEffect, useState } from "react"
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip,
   ResponsiveContainer, Cell
 } from "recharts"
 import {
   ClipboardList, Clock, CheckCircle,
-  XCircle, TrendingUp, Plus
+  XCircle, TrendingUp, Plus, Loader2
 } from "lucide-react"
-import { mockRequests } from "@/lib/mockData"
 import { StatusBadge } from "@/components/ui/StatusBadge"
 import { useNavigate } from "react-router-dom"
+import { requestService } from "@/services/requestService"
 
 export default function ReceiverDashboard() {
   const navigate = useNavigate()
+  const [requests, setRequests] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState("")
 
-  const myRequests = mockRequests.slice(0, 6)
+  useEffect(() => {
+    requestService.getMy()
+      .then((data) => setRequests(Array.isArray(data) ? data : []))
+      .catch(() => setError("Failed to load your requests."))
+      .finally(() => setLoading(false))
+  }, [])
+
+  const myRequests = requests
   const pending = myRequests.filter(r => r.status === "PENDING").length
   const approved = myRequests.filter(r => r.status === "APPROVED").length
   const rejected = myRequests.filter(r => r.status === "REJECTED").length
@@ -60,6 +71,28 @@ export default function ReceiverDashboard() {
     { name: "Rejected", value: rejected, color: "#F85149" },
     { name: "Completed", value: completed, color: "#378ADD" },
   ]
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center py-24">
+        <Loader2 className="w-10 h-10 animate-spin text-teal-600" />
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="text-center py-24">
+        <p className="text-red-500 mb-4">{error}</p>
+        <button
+          onClick={() => window.location.reload()}
+          className="text-teal-600 hover:underline text-sm"
+        >
+          Retry
+        </button>
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-6">
@@ -174,6 +207,9 @@ export default function ReceiverDashboard() {
                 <StatusBadge status={r.status} />
               </div>
             ))}
+            {myRequests.length === 0 && (
+              <p className="text-center text-sm text-slate-500 py-4">No requests yet.</p>
+            )}
           </div>
         </div>
       </div>

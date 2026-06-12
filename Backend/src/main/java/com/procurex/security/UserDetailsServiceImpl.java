@@ -1,14 +1,15 @@
 package com.procurex.security;
 
-import com.procurex.entity.User;
-import com.procurex.repository.UserRepository;
+import java.util.Collections;
+
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
+import com.procurex.entity.User;
+import com.procurex.repository.UserRepository;
 
 @Service
 public class UserDetailsServiceImpl implements UserDetailsService {
@@ -23,7 +24,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         // We actually use email as the identifier in LoginRequest, but standard Spring Security uses 'username'
         // Let's try to find by email first, then by username
-        User user = userRepository.findByEmail(username);
+        User user = userRepository.findByEmail(username).orElse(null);
         if (user == null) {
             user = userRepository.findByUsername(username).orElse(null);
         }

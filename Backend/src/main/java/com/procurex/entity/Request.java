@@ -47,6 +47,10 @@ public class Request {
     @com.fasterxml.jackson.annotation.JsonIgnore
     private User user;
 
+    // Bug 1: Expose requestedBy username for frontend consumption
+    @com.fasterxml.jackson.annotation.JsonProperty("requestedBy")
+    public String getRequestedBy() { return user != null ? user.getUsername() : null; }
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 

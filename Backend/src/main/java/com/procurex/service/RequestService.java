@@ -1,5 +1,6 @@
 package com.procurex.service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -7,10 +8,12 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.procurex.entity.Notification;
 import com.procurex.entity.Request;
 import com.procurex.entity.User;
 import com.procurex.enums.RequestStatus;
 import com.procurex.repository.InventoryRepository;
+import com.procurex.repository.NotificationRepository;
 import com.procurex.repository.RequestRepository;
 import com.procurex.repository.UserRepository;
 
@@ -21,19 +24,22 @@ public class RequestService {
     private final InventoryRepository inventoryRepository;
     private final StockTransactionService stockTransactionService;
     private final AuditLogService auditLogService;
+    private final NotificationRepository notificationRepository;
 
     public RequestService(
         RequestRepository requestRepository,
         InventoryRepository inventoryRepository,
         StockTransactionService stockTransactionService,
         UserRepository userRepository,
-        AuditLogService auditLogService
+        AuditLogService auditLogService,
+        NotificationRepository notificationRepository
     ) {
         this.requestRepository = requestRepository;
         this.inventoryRepository = inventoryRepository;
         this.stockTransactionService = stockTransactionService;
         this.userRepository = userRepository;
         this.auditLogService = auditLogService;
+        this.notificationRepository = notificationRepository;
     }
 
     @Transactional
@@ -85,14 +91,25 @@ public class RequestService {
     @Transactional
     public Optional<Request> updateRequestStatus(Long id, RequestStatus status) {
         return requestRepository.findById(id).map(existingRequest -> {
-            if ((status == RequestStatus.APPROVED || status == RequestStatus.REJECTED) 
-                    && existingRequest.getStatus() != RequestStatus.PENDING) {
+            RequestStatus currentStatus = existingRequest.getStatus();
+
+            // Bug 6: Prevent workflow bypass — PENDING → COMPLETED is invalid
+            if (status == RequestStatus.COMPLETED && currentStatus != RequestStatus.APPROVED) {
+                throw new RuntimeException("Only APPROVED requests can be completed");
+            }
+
+            if ((status == RequestStatus.APPROVED || status == RequestStatus.REJECTED)
+                    && currentStatus != RequestStatus.PENDING) {
                 throw new RuntimeException("Only PENDING requests can be approved or rejected");
             }
 
-            // Only deduct inventory if changing TO COMPLETED from a different status
-            if (status == RequestStatus.COMPLETED && existingRequest.getStatus() != RequestStatus.COMPLETED) {
+            // Bug 7: Inventory negative guard — check sufficient stock before deducting
+            if (status == RequestStatus.COMPLETED) {
                 com.procurex.entity.Inventory inv = existingRequest.getInventory();
+                if (inv.getQuantity() < existingRequest.getQuantity()) {
+                    throw new RuntimeException("Insufficient inventory: available "
+                        + inv.getQuantity() + ", requested " + existingRequest.getQuantity());
+                }
                 inv.setQuantity(inv.getQuantity() - existingRequest.getQuantity());
                 inv.recalculateStockLevel();
                 inventoryRepository.save(inv);
@@ -102,10 +119,26 @@ public class RequestService {
             existingRequest.setStatus(status);
             Request saved = requestRepository.save(existingRequest);
 
+            // Bug 8: Create notification for the request owner
+            User requestOwner = existingRequest.getUser();
+            if (requestOwner != null) {
+                Notification notification = new Notification();
+                notification.setUser(requestOwner);
+                notification.setMessage("Your request REQ-" + String.format("%03d", saved.getId())
+                    + " (" + existingRequest.getInventory().getMaterial() + ") has been "
+                    + status.name().toLowerCase());
+                notification.setIsRead(false);
+                notification.setTimestamp(LocalDateTime.now());
+                notificationRepository.save(notification);
+            }
+
+            // Audit logging for all status changes
             if (status == RequestStatus.APPROVED) {
                 auditLogService.log("Approved Request", "Requests", "Approved request " + String.format("REQ-%03d", saved.getId()));
             } else if (status == RequestStatus.REJECTED) {
                 auditLogService.log("Rejected Request", "Requests", "Rejected request " + String.format("REQ-%03d", saved.getId()));
+            } else if (status == RequestStatus.COMPLETED) {
+                auditLogService.log("Completed Request", "Requests", "Completed request " + String.format("REQ-%03d", saved.getId()));
             }
 
             return saved;
