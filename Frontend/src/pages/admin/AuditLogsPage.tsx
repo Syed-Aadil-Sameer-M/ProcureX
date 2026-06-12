@@ -1,9 +1,19 @@
-import { mockAuditLogs } from "@/lib/mockData"
+import { useState, useEffect } from "react"
+import { auditLogService } from "@/services/auditLogService"
 import { DataTable, type Column } from "@/components/shared/DataTable"
 import ExportButton from "@/components/shared/ExportButton"
 import { exportToExcel, exportToPDF } from "@/lib/exportUtils"
+import { useToast } from "@/hooks/use-toast"
+import { Skeleton } from "@/components/ui/skeleton"
 
-type Log = typeof mockAuditLogs[0]
+type Log = {
+  id: number
+  user: string
+  action: string
+  module: string
+  description: string
+  timestamp: string
+}
 
 const columns: Column<Log>[] = [
   { header: "User", accessor: "user" },
@@ -14,8 +24,24 @@ const columns: Column<Log>[] = [
 ]
 
 export default function AuditLogsPage() {
+  const [logs, setLogs] = useState<Log[]>([])
+  const [loading, setLoading] = useState(true)
+  const { toast } = useToast()
+
+  useEffect(() => {
+    auditLogService.getAll()
+      .then(data => {
+        setLogs(data)
+        setLoading(false)
+      })
+      .catch(() => {
+        toast({ title: "Error", description: "Failed to load audit logs", variant: "destructive" })
+        setLoading(false)
+      })
+  }, [toast])
+
   const handleExcelExport = () => {
-    const rows = mockAuditLogs.map(l => ({
+    const rows = logs.map(l => ({
       User: l.user,
       Action: l.action,
       Module: l.module,
@@ -27,7 +53,7 @@ export default function AuditLogsPage() {
 
   const handlePDFExport = () => {
     const headers = ["User", "Action", "Module", "Description", "Timestamp"]
-    const rows = mockAuditLogs.map(l => [
+    const rows = logs.map(l => [
       l.user,
       l.action,
       l.module,
@@ -35,6 +61,15 @@ export default function AuditLogsPage() {
       new Date(l.timestamp).toLocaleString(),
     ])
     exportToPDF(headers, rows, "ProcureX_AuditLogs", "Audit Logs")
+  }
+
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <div className="flex justify-between"><Skeleton className="h-10 w-48" /><Skeleton className="h-10 w-24" /></div>
+        <Skeleton className="h-64 w-full" />
+      </div>
+    )
   }
 
   return (
@@ -49,7 +84,7 @@ export default function AuditLogsPage() {
           onExportPDF={handlePDFExport}
         />
       </div>
-      <DataTable columns={columns} data={mockAuditLogs} />
+      <DataTable columns={columns} data={logs} />
     </div>
   )
 }

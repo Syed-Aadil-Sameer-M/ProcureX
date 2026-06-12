@@ -2,10 +2,10 @@ import { useEffect, useState } from "react"
 import { requestService } from "@/services/requestService"
 import { DataTable, type Column } from "@/components/shared/DataTable"
 import { StatusBadge } from "@/components/ui/StatusBadge"
-import { Loader2 } from "lucide-react"
 import ExportButton from "@/components/shared/ExportButton"
 import { exportToExcel, exportToPDF } from "@/lib/exportUtils"
-import { mockRequests } from "@/lib/mockData"
+import { useToast } from "@/hooks/use-toast"
+import { Skeleton } from "@/components/ui/skeleton"
 
 const columns: Column<any>[] = [
   { header: "ID", accessor: "id" },
@@ -20,13 +20,14 @@ const columns: Column<any>[] = [
 export default function AllRequestsPage() {
   const [data, setData] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
+  const { toast } = useToast()
 
   useEffect(() => {
-    requestService.getAll()
-      .then(setData)
-      .catch(() => setData(mockRequests))
+    requestService.getAll({ size: 50 })
+      .then((res: any) => setData(res.content || res))
+      .catch(() => toast({ title: "Error", description: "Failed to load requests", variant: "destructive" }))
       .finally(() => setLoading(false))
-  }, [])
+  }, [toast])
 
   const handleExcelExport = () => {
     const rows = data.map(r => ({
@@ -55,6 +56,15 @@ export default function AllRequestsPage() {
     exportToPDF(headers, rows, "ProcureX_Requests", "All Material Requests")
   }
 
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <div className="flex justify-between"><Skeleton className="h-10 w-48" /><Skeleton className="h-10 w-24" /></div>
+        <Skeleton className="h-64 w-full" />
+      </div>
+    )
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -66,21 +76,14 @@ export default function AllRequestsPage() {
             Complete request history
           </p>
         </div>
-        {!loading && data.length > 0 && (
+        {data.length > 0 && (
           <ExportButton
             onExportExcel={handleExcelExport}
             onExportPDF={handlePDFExport}
           />
         )}
       </div>
-
-      {loading ? (
-        <div className="flex justify-center py-12">
-          <Loader2 className="w-8 h-8 animate-spin text-teal-600" />
-        </div>
-      ) : (
-        <DataTable columns={columns} data={data} pageSize={10} />
-      )}
+      <DataTable columns={columns} data={data} pageSize={10} />
     </div>
   )
 }

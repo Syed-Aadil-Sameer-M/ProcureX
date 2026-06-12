@@ -4,10 +4,15 @@ spring:
   profiles:
     active: dev
   datasource:
-    url: jdbc:postgresql://localhost:5432/ProcureX_DB
-    username: postgres
-    password: aadil@123
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/ProcureX_DB}
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:aadil@123}
     driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 5
+      idle-timeout: 600000
+      max-lifetime: 1800000
   sql:
     init:
       mode: never
@@ -15,12 +20,48 @@ spring:
       data-locations: file:../database/seed.sql
   jpa:
     hibernate:
-      ddl-auto: update
-    show-sql: true
-    database-platform: org.hibernate.dialect.PostgreSQLDialect
+      ddl-auto: none
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+        jdbc:
+          batch_size: 20
+        order_inserts: true
+        order_updates: true
+
 server:
   address: 0.0.0.0
   port: 8080
+  servlet:
+    context-path: /
+  error:
+    include-message: always
+    include-binding-errors: always
 
 jwt:
-  secret: a-very-secure-secret-key-that-should-be-at-least-256-bits-long
+  secret: ${JWT_SECRET:aS9f8s7d6f5g4h3j2k1l0p9o8i7u6y5t4r3e2w1q0z9x8c7v6b5n4m3l2k1}
+  expiration: 36000000
+
+logging:
+  level:
+    root: INFO
+    com.procurex: DEBUG
+    org.springframework.security: DEBUG
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+  file:
+    name: logs/procurex.log
+    max-size: 10MB
+    max-history: 30
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: when-authorized

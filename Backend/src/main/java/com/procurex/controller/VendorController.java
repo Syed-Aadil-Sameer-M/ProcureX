@@ -1,7 +1,7 @@
 package com.procurex.controller;
 
 import com.procurex.entity.Vendor;
-import com.procurex.repository.VendorRepository;
+import com.procurex.service.VendorService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -12,32 +12,26 @@ import java.util.List;
 @CrossOrigin
 public class VendorController {
 
-    private final VendorRepository vendorRepository;
+    private final VendorService vendorService;
 
-    public VendorController(VendorRepository vendorRepository) {
-        this.vendorRepository = vendorRepository;
+    public VendorController(VendorService vendorService) {
+        this.vendorService = vendorService;
     }
 
     @GetMapping
     public ResponseEntity<List<Vendor>> getAll() {
-        return ResponseEntity.ok(vendorRepository.findAll());
+        return ResponseEntity.ok(vendorService.findAll());
     }
 
     @PostMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'PROCUREMENT')")
     public ResponseEntity<Vendor> addVendor(@RequestBody Vendor vendor) {
-        return ResponseEntity.ok(vendorRepository.save(vendor));
+        return ResponseEntity.ok(vendorService.create(vendor));
     }
 
     @PutMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'PROCUREMENT')")
     public ResponseEntity<Vendor> updateVendor(@PathVariable Long id, @RequestBody Vendor details) {
-        return vendorRepository.findById(id).map(existing -> {
-            existing.setName(details.getName());
-            existing.setContactName(details.getContactName());
-            existing.setEmail(details.getEmail());
-            existing.setPhone(details.getPhone());
-            return ResponseEntity.ok(vendorRepository.save(existing));
-        }).orElse(ResponseEntity.notFound().build());
+        return ResponseEntity.ok(vendorService.update(id, details));
     }
 }

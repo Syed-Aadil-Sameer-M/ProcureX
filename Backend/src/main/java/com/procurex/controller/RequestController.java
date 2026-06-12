@@ -29,15 +29,17 @@ public class RequestController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Request>> getAll() {
-        return ResponseEntity.ok(requestService.getAllRequests());
+    public ResponseEntity<org.springframework.data.domain.Page<Request>> getAll(
+            @RequestParam(required = false) RequestStatus status,
+            org.springframework.data.domain.Pageable pageable) {
+        return ResponseEntity.ok(requestService.getAllRequests(pageable, status));
     }
 
     @GetMapping("/my")
     @PreAuthorize("hasRole('RECEIVER')")
-    public ResponseEntity<List<Request>> getMyRequests() {
+    public ResponseEntity<org.springframework.data.domain.Page<Request>> getMyRequests(org.springframework.data.domain.Pageable pageable) {
         String username = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication().getName();
-        return ResponseEntity.ok(requestService.getRequestsByUser(username));
+        return ResponseEntity.ok(requestService.getRequestsByUser(username, pageable));
     }
 
     @PatchMapping("/{id}/status")

@@ -8,13 +8,13 @@ export interface CreateRequestData {
 }
 
 export const requestService = {
-  getAll: async () => {
-    const response = await api.get('/requests')
+  getAll: async (params?: { page?: number; size?: number; status?: string }) => {
+    const response = await api.get('/requests', { params })
     return response.data
   },
 
-  getMy: async () => {
-    const response = await api.get('/requests/my')
+  getMy: async (params?: { page?: number; size?: number }) => {
+    const response = await api.get('/requests/my', { params })
     return response.data
   },
 

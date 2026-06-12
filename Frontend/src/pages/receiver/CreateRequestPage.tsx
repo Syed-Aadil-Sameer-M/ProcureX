@@ -12,7 +12,7 @@ import { requestService } from "@/services/requestService"
 
 const schema = z.object({
   material: z.string().min(1, "Material name is required"),
-  quantity: z.coerce.number().min(1, "Quantity must be at least 1"),
+  quantity: z.preprocess((val) => Number(val), z.number().min(1, "Quantity must be at least 1")),
   location: z.string().min(1, "Location is required"),
   description: z.string().optional(),
 })
@@ -24,7 +24,7 @@ export default function CreateRequestPage() {
   const [submitted, setSubmitted] = useState(false)
   const [submittedData, setSubmittedData] = useState<FormValues | null>(null)
   const { toast } = useToast()
-  const form = useForm<FormValues>({ resolver: zodResolver(schema), defaultValues: { material: "", quantity: 1, location: "", description: "" } })
+  const form = useForm<FormValues>({ resolver: zodResolver(schema) as any, defaultValues: { material: "", quantity: 1, location: "", description: "" } })
 
   const onSubmit = async (data: FormValues) => {
     setLoading(true)

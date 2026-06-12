@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react"
 import { inventoryService, type InventoryItem } from "@/services/inventoryService"
 import { DataTable, type Column } from "@/components/shared/DataTable"
-import { Loader2 } from "lucide-react"
 import ExportButton from "@/components/shared/ExportButton"
 import { exportToExcel, exportToPDF } from "@/lib/exportUtils"
-import { mockInventory } from "@/lib/mockData"
+import { useToast } from "@/hooks/use-toast"
+import { Skeleton } from "@/components/ui/skeleton"
 
 const stockBadge = (level: string) => {
   const styles: Record<string, string> = {
@@ -31,13 +31,14 @@ const columns: Column<InventoryItem>[] = [
 export default function AdminInventoryPage() {
   const [data, setData] = useState<InventoryItem[]>([])
   const [loading, setLoading] = useState(true)
+  const { toast } = useToast()
 
   useEffect(() => {
     inventoryService.getAll()
       .then(setData)
-      .catch(() => setData(mockInventory.map((i, index) => ({ ...i, id: index + 1, minStockLevel: 10 })) as InventoryItem[]))
+      .catch(() => toast({ title: "Error", description: "Failed to load inventory", variant: "destructive" }))
       .finally(() => setLoading(false))
-  }, [])
+  }, [toast])
 
   const handleExcelExport = () => {
     const rows = data.map(i => ({
@@ -64,6 +65,15 @@ export default function AdminInventoryPage() {
     exportToPDF(headers, rows, "ProcureX_Inventory", "Inventory Report")
   }
 
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <div className="flex justify-between"><Skeleton className="h-10 w-48" /><Skeleton className="h-10 w-24" /></div>
+        <Skeleton className="h-64 w-full" />
+      </div>
+    )
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -71,20 +81,14 @@ export default function AdminInventoryPage() {
           <h1 className="text-2xl font-bold">Inventory</h1>
           <p className="text-muted-foreground">Current stock levels</p>
         </div>
-        {!loading && data.length > 0 && (
+        {data.length > 0 && (
           <ExportButton
             onExportExcel={handleExcelExport}
             onExportPDF={handlePDFExport}
           />
         )}
       </div>
-      {loading ? (
-        <div className="flex justify-center py-12">
-          <Loader2 className="w-8 h-8 animate-spin text-teal-600" />
-        </div>
-      ) : (
-        <DataTable columns={columns} data={data} />
-      )}
+      <DataTable columns={columns} data={data} />
     </div>
   )
 }

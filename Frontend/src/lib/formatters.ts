@@ -30,4 +30,8 @@ export const statusColors = {
   RECEIVED: { bg: "bg-teal-500/10", text: "text-teal-400", border: "border-teal-500/30" }
 }
 
-export const stockLevelCol
+export function stockLevelColor(quantity: number, minStockLevel: number = 10): string {
+  if (quantity <= 0) return "bg-red-500/10 text-red-400 border-red-500/30"
+  if (quantity <= minStockLevel) return "bg-amber-500/10 text-amber-400 border-amber-500/30"
+  return "bg-green-500/10 text-green-400 border-green-500/30"
+}

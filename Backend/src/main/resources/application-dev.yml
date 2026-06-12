@@ -1,7 +1,12 @@
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/ProcureX_DB
-    username: postgres
-    password: aadil@123
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/ProcureX_DB}
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:aadil@123}
+    driver-class-name: org.postgresql.Driver
   jpa:
     show-sql: true
+
+# JWT configuration used by JwtUtil (must be at least 32 bytes for HS256)
+jwt:
+  secret: aS9f8s7d6f5g4h3j2k1l0p9o8i7u6y5t4r3e2w1q0z9x8c7v6b5n4m3l2k1

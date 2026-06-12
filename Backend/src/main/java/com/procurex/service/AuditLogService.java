@@ -4,6 +4,8 @@ import com.procurex.entity.AuditLog;
 import com.procurex.entity.User;
 import com.procurex.repository.AuditLogRepository;
 import com.procurex.repository.UserRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -11,6 +13,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class AuditLogService {
+
+    private static final Logger logger = LoggerFactory.getLogger(AuditLogService.class);
 
     private final AuditLogRepository auditLogRepository;
     private final UserRepository userRepository;
@@ -22,6 +26,7 @@ public class AuditLogService {
 
     @Transactional
     public void log(String action, String module, String description) {
+        logger.debug("Audit log create: action={}, module={}, description={}", action, module, description);
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         User currentUser = null;
         if (auth != null && auth.isAuthenticated() && !(auth instanceof org.springframework.security.authentication.AnonymousAuthenticationToken)) {

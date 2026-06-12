@@ -1,5 +1,5 @@
-import { useState } from "react"
-import { mockNotifications } from "@/lib/mockData"
+import { useState, useEffect } from "react"
+import { notificationService } from "@/services/notificationService"
 
 export type Notification = {
   id: string
@@ -9,19 +9,31 @@ export type Notification = {
 }
 
 export function useNotifications() {
-  const [notifications, setNotifications] = useState<Notification[]>(
-    mockNotifications.map(n => ({ ...n, read: n.read }))
-  )
+  const [notifications, setNotifications] = useState<Notification[]>([])
+
+  useEffect(() => {
+    notificationService.getAll().then(data => {
+      setNotifications(data);
+    }).catch(err => {
+      console.error("Failed to load notifications", err);
+    });
+  }, []);
 
   const unreadCount = notifications.filter(n => !n.read).length
 
-  const markAsRead = (id: string) => {
-    setNotifications(prev =>
-      prev.map(n => n.id === id ? { ...n, read: true } : n)
-    )
+  const markAsRead = async (id: string) => {
+    try {
+      await notificationService.markAsRead(Number(id));
+      setNotifications(prev =>
+        prev.map(n => n.id === id ? { ...n, read: true } : n)
+      )
+    } catch (err) {
+      console.error("Failed to mark as read", err);
+    }
   }
 
-  const markAllAsRead = () => {
+  const markAllAsRead = async () => {
+    // Optional: implement if there's a markAllAsRead backend endpoint
     setNotifications(prev => prev.map(n => ({ ...n, read: true })))
   }
 

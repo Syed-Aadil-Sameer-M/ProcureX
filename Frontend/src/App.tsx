@@ -9,7 +9,7 @@ import HomePage from "@/pages/HomePage"
 import LoginPage from "@/pages/LoginPage"
 import RegisterPage from "@/pages/RegisterPage"
 import ForgotPasswordPage from "@/pages/ForgotPasswordPage"
-import NotFound from "@/pages/not-found"
+import NotFoundPage from "@/pages/NotFoundPage"
 
 // Receiver Pages
 import ReceiverDashboard from "@/pages/receiver/ReceiverDashboard"
@@ -115,7 +115,7 @@ export default function App() {
           <Route path="/app/procurement/profile" element={<ProtectedRoute roles={["procurement"]}><AuthLayout links={procurementLinks}><ProcurementProfilePage /></AuthLayout></ProtectedRoute>} />
 
           {/* Catch All */}
-          <Route path="*" element={<NotFound />} />
+          <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </AuthProvider>
       <Toaster />

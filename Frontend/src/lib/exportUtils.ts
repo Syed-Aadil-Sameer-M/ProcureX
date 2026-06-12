@@ -1,5 +1,5 @@
 import * as XLSX from "xlsx"
-import jsPDF from "jspdf"
+import { jsPDF } from "jspdf"
 import autoTable from "jspdf-autotable"
 
 // ─── Excel Export ───────────────────────────────────────────────
